@@ -1,23 +1,40 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import { useDispatch } from 'react-redux';
+import authService from './appwrite/auth';
+import { login, logout } from './store/authSlice';
+import { Footer, Header } from './components';
+import { Outlet } from 'react-router-dom';
+import Login from './components/Login';
+import SignUp from './components/SignUp';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+  const [isLoading, setIsLoading] = useState(false)
+  const dispatch = useDispatch()
+
+
+  useEffect(() => {
+    authService.getCurrentUser()
+      .then((userData) => {
+        if (userData) {
+          dispatch(login({ userData }))
+        } else {
+          dispatch(logout())
+        }
+      })
+      .catch((error) => console.log('error :: did not get current user ::', error))
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  return isLoading ? null : (
+    <div className='min-h-screen flex flex-wrap content-between bg-gray-400'>
+      <div className='w-full block'>
+        <Header />
+        <main>
+          TODO:  <Outlet />
+        </main>
+        {/* <Footer /> */}
+      </div>
     </div>
   );
 }
